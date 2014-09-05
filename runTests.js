@@ -6,8 +6,6 @@ var nforce = require('nforce'),
   events = require('events'),
   eventEmitter = new events.EventEmitter();
 
-// NEED TO CHANGE TOOLING REFERENCE ABOVE  
-
 var sfuser = process.env.SFUSER;
 var sfpass = process.env.SFPASS;
 
