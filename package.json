@@ -1,0 +1,13 @@
+{
+  "name": "df14-tooling-demo",
+  "description": "Demo application for DF14",
+  "version": "0.0.1",
+  "private": true,
+  "dependencies": {
+    "lodash": "^2.4.1",
+    "nforce": "*",
+    "nforce-tooling": "*",
+    "q": "~1.0.0",
+    "watch": "^0.11.0"
+  }
+}
