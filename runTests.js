@@ -23,6 +23,19 @@ var org = nforce.createConnection({
   plugins: ['tooling']
 });
 
+org.authenticate({ username: sfuser, password: sfpass}, function(err, resp){
+  if(!err) {
+
+    console.log('*** Running tests asynchronously. I know. This is awesome!! ***');
+    createApexClasses()
+      .then(function(results) {
+        eventEmitter.emit('start');
+      });
+  } else {
+    console.log('Error connecting to Salesforce: ' + err.message);
+  }
+});
+
 eventEmitter.on('start', function() {
   org.tooling.runTestsAsync({ids: apexTestClassIds}, function(err, results) {
     if (!err) {
@@ -58,7 +71,7 @@ eventEmitter.on('results', function(ids) {
   // keep track of how many test results we've processed so we know when done (async)
   var counter = 0;
   org.tooling.getAsyncTestResults({ids: ids}, function(err, resp) {
-    
+
     console.log('========================================');
     console.log('** TEST RESULTS **');
 
@@ -104,23 +117,10 @@ eventEmitter.on('complete', function() {
   cleanUp();
 });
 
-org.authenticate({ username: sfuser, password: sfpass}, function(err, resp){
-  if(!err) {
-
-    console.log('*** Running tests asynchronously. I know. This is awesome!! ***');
-    createApexClasses()
-      .then(function(results) {
-        eventEmitter.emit('start');
-      });
-  } else {
-    console.log('Error connecting to Salesforce: ' + err.message);
-  }
-});
-
 // deletes all classes that were created
 function cleanUp() {
 
-  _(allApexClassIds).forEach(function(id) { 
+  _(allApexClassIds).forEach(function(id) {
 
     org.tooling.delete({type: 'ApexClass', id: id}, function(err, resp) {
       if (err) {
@@ -130,13 +130,12 @@ function cleanUp() {
         setTimeout(
           function () {
             org.tooling.delete({type: 'ApexClass', id: id}, function(err, resp) {
-              if (!err) { console.log('Deleted ApexClass ' + id); }             
-              if (err) { console.log('Crap! Could not delete ApexClass ' + id); } 
+              if (!err) { console.log('Deleted ApexClass ' + id); }
+              if (err) { console.log('Crap! Could not delete ApexClass ' + id); }
             });
-          }
-        , 5000);
+          }, 5000);
 
-      };
+      }
       if (!err) { console.log('Deleted ApexClass ' + id); }
     });
 
@@ -178,13 +177,13 @@ function createApexClasses() {
       getApexCodeAsPromised('toolingtest1.cls'),
       getApexCodeAsPromised('toolingtest2.cls')
     ]).then(function(classes) {
-      // now insert the apex classes    
+      // now insert the apex classes
       Q.all([
         createApexClassAsPromised({ name: 'ToolingTest1', body: classes[0] }),
         createApexClassAsPromised({ name: 'ToolingTest2', body: classes[1] })
       ]).then(function(results) {
         // add each id to the array
-        _(_.pluck(results, 'id')).forEach(function(id) { allApexClassIds.push(id) });
+        _(_.pluck(results, 'id')).forEach(function(id) { allApexClassIds.push(id); });
 
         // now insert all the test classes after the classes have complete submitted
         Q.all([
@@ -196,8 +195,8 @@ function createApexClasses() {
             createApexClassAsPromised({ name: 'ToolingTest2_Test', body: classes[1] })
           ]).then(function(results) {
             // add each id to the array
-            _(_.pluck(results, 'id')).forEach(function(id) { allApexClassIds.push(id) });
-            _(_.pluck(results, 'id')).forEach(function(id) { apexTestClassIds.push(id) });
+            _(_.pluck(results, 'id')).forEach(function(id) { allApexClassIds.push(id); });
+            _(_.pluck(results, 'id')).forEach(function(id) { apexTestClassIds.push(id); });
             deferred.resolve(apexTestClassIds);
           });
         });
